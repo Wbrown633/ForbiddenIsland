@@ -134,7 +134,8 @@ class ForbiddenIslandWorld extends World {
     this.linkCells();
     this.listCells(this.cells);
   }
-
+  
+  
   // Effect: create an IList<Cell> from the given nested Array list of cells
   IList<Cell> listCells(ArrayList<ArrayList<Cell>> cells) {
     for (ArrayList<Cell> list : cells) {
@@ -160,8 +161,68 @@ class ForbiddenIslandWorld extends World {
     }
     this.heights = temp;
   }
+  
+  // EFFECT: update the list of doubles for a procedurally generated island
+  void listHeightsProc() {
+	  this.heights = new ArrayList<ArrayList<Double>>();
+	  for (int i = 0; i < this.ISLAND_SIZE + 1; i++) {
+		  this.heights.add(new ArrayList<Double>(this.ISLAND_SIZE + 1));
+	  }
+	  
+	  
+	  this.heights.get(0).set(0, 0.0);
+	  this.heights.get(0).set(this.ISLAND_SIZE, 0.0);
+	  this.heights.get(this.ISLAND_SIZE).set(0, 0.0);
+	  this.heights.get(this.ISLAND_SIZE).set(this.ISLAND_SIZE, 0.0);
+	  
+	  this.heights.get(this.ISLAND_HEIGHT).set(this.ISLAND_HEIGHT, (double) this.ISLAND_HEIGHT);
+	  
+	  this.heights.get(0).set(this.ISLAND_HEIGHT, 1.0);
+	  this.heights.get(this.ISLAND_SIZE).set(this.ISLAND_HEIGHT, 1.0);
+	  this.heights.get(this.ISLAND_HEIGHT).set(0, 1.0);
+	  this.heights.get(this.ISLAND_HEIGHT).set(this.ISLAND_SIZE, 1.0);
+	  
+	  this.subdivide(0, this.ISLAND_SIZE, 0, this.ISLAND_SIZE);
+  }
+  
+  void subdivide(int xmin, int xmax, int ymin, int ymax) {
+	  double rand = Math.random();
+	  
+	  double tl = this.heights.get(xmin).get(ymin);
+	  double tr = this.heights.get(xmax).get(ymin);
+	  double bl = this.heights.get(xmin).get(ymax);
+	  double br = this.heights.get(xmax).get(ymax);
+	  
+	  double t = avgRand(tl, tr, rand);
+	  double b = avgRand(bl, br, rand);
+	  double l = avgRand(tl, bl, rand);
+	  double r = avgRand(tr, br, rand);
+	  double m = rand + (tl + tr + bl + br)/4;
 
+	  if((ymax - ymin == 1) && (xmax - xmin == 1)) {
+		  
+	  }
+	  else {
+		  this.heights.get(ymin).set((xmin + xmax)/2, t);
+		  this.heights.get(ymax).set((xmin + xmax)/2, b);
+		  this.heights.get((ymin + ymax)/2).set(xmax, r);
+		  this.heights.get((ymin + ymax)/2).set(xmin, l);
+		  
+		  this.subdivide(xmin, (xmax + xmin)/2, ymin, (ymax + ymin)/2); // Top left
+		  this.subdivide((xmax + xmin)/2, xmax, ymin, (ymax + ymin)/2); // Top right
+		  this.subdivide(xmin, (xmax + xmin)/2, (ymax + ymin)/2, ymax); // Bottom left
+		  this.subdivide((xmax + xmin)/2, xmax, (ymax + ymin)/2, ymax); // Bottom right recur
+	  }
+	  
+  }
+  
+  double avgRand(double a, double b, double rand) {
+	  return rand + (a + b)/2;
+  }
+  
 }
+
+
 
 // Represents a single square of the game area
 class Cell {
@@ -200,7 +261,7 @@ class Cell {
   // determine the color of this cell
   private Color getColor() {
     int x = Math.abs((int) this.height * 255 / ForbiddenIslandWorld.ISLAND_HEIGHT);
-    Color c = new Color(x/2, x/2 + 128, x/2);
+    Color c = new Color(255, x, 255);
     return c;
   }
 }
