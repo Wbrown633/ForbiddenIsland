@@ -18,6 +18,10 @@ interface IList<T> extends Iterable<T> {
   
   // does this list contain this item? 
   boolean contains(T t);
+  
+  // return a list of cells that form the coastline
+  // TODO : implement a filter method? 
+  IList<T> coastline();
 
 }
 
@@ -52,6 +56,11 @@ class MtList<T> implements IList<T> {
   // the empty list doesn't contain this item
   public boolean contains(T t) {
     return false;
+  }
+
+  // find the coastline cells in this mtlist
+  public IList<T> coastline() {
+    return this;
   }
 }
 
@@ -95,6 +104,13 @@ class ConsList<T> implements IList<T> {
   public boolean contains(T t) {
     return this.first.equals(t) || this.rest.contains(t);
   }
+
+  // filter this list return only cells that are on the coastline/will be flooded
+  // on the next tick 
+  // TODO: implement this method 
+  public IList<T> coastline() {
+    return null;
+  }
 }
 
 class IListIterator<T> implements Iterator<T> {
@@ -118,10 +134,9 @@ class IListIterator<T> implements Iterator<T> {
     return result;
   }
 
-  @Override
+  // don't use this 
   public void remove() {
-    // TODO Auto-generated method stub
-
+    throw new UnsupportedOperationException("Method not implemented. Don't use it!");
   }
 
 }
