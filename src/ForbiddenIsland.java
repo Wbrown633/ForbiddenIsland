@@ -406,6 +406,11 @@ class Cell {
 	public boolean isOcean() {
 		return false;
 	}
+	
+	// convenience for making examples only 
+	public void makeNeighbor(Cell c) {
+	  this.left = c;
+	}
 }
 
 class OceanCell extends Cell {
@@ -652,5 +657,14 @@ class ExamplesForbidden {
 		this.ex1.player = p.movePlayer("up");
 		t.checkExpect(this.ex1.player.location,
 				this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT - 1).get(ForbiddenIslandWorld.ISLAND_HEIGHT - 2));
+	}
+	
+	// test the CoastCell function object
+	void testCoast(Tester t) {
+	  IPred<Cell> p = new CoastCell();
+	  Cell c1 = new Cell(1.0,1,1);
+	  Cell o1 = new OceanCell(2.0,2,2);
+	  c1.makeNeighbor(o1);
+	  t.checkExpect(p.apply(c1), true);	  
 	}
 }
