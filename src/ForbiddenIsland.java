@@ -9,7 +9,7 @@ import javalib.worldimages.*;
 class ForbiddenIslandWorld extends World {
 
 	// Defines an int constant
-	static final int ISLAND_SIZE = 25;
+	static final int ISLAND_SIZE = 64;
 	// define the height of the island
 	static final int ISLAND_HEIGHT = ForbiddenIslandWorld.ISLAND_SIZE / 2;
 	// All the cells of the game, including the ocean
@@ -230,6 +230,7 @@ class ForbiddenIslandWorld extends World {
 	void listHeightsProc() {
 		int size = ForbiddenIslandWorld.ISLAND_SIZE;
 
+		// Initialize the size of this.heights
 		this.heights = new ArrayList<ArrayList<Double>>();
 		for (int i = 0; i < size + 1; i++) {
 			this.heights.add(new ArrayList<Double>(size + 1));
@@ -237,16 +238,13 @@ class ForbiddenIslandWorld extends World {
 				this.heights.get(i).add(null);
 			}
 		}
-		System.out.println("xsize" + this.heights.size());
-		System.out.println("x0ysize" + this.heights.get(0).size());
-
+		
 		// Initialize corner heights to 0.0
 		this.heights.get(0).set(0, 0.0);
 		this.heights.get(0).set(size, 0.0);
 		this.heights.get(size).set(0, 0.0);
 		this.heights.get(size).set(size, 0.0);
-
-		System.out.println("debug2: " + size);
+		
 		// Initialize middle and edge cells for recursion base
 		if (size % 2 == 0) {
 			// Calculate and set top, bottom, left, and right edge cells
@@ -264,7 +262,8 @@ class ForbiddenIslandWorld extends World {
 			this.subdivide(0, size / 2, size / 2, size); // Top right
 			this.subdivide(size / 2, size, 0, size / 2); // Bottom Left
 			this.subdivide(size / 2, size, size / 2, size); // Bottom Right Subdivision
-		} else {
+		} 
+		else {
 			// Left 2 edge cells
 			this.heights.get(0).set(size / 2, 1.0);
 			this.heights.get(0).set(size / 2 + 1, 1.0);
@@ -289,8 +288,8 @@ class ForbiddenIslandWorld extends World {
 
 			// Subdivide 4 distinct corners of the grid
 			this.subdivide(0, size / 2, 0, size / 2); // Top left
-			this.subdivide(0, size / 2 + 1, size / 2, size); // Top right
-			this.subdivide(size / 2, size, 0, size / 2 + 1); // Bottom Left
+			this.subdivide(size / 2 + 1, size, 0, size / 2); // Top right
+			this.subdivide(0, size / 2, size / 2 + 1, size); // Bottom Left
 			this.subdivide(size / 2 + 1, size, size / 2 + 1, size); // Bottom Right Subdivision
 		}
 	}
@@ -301,15 +300,15 @@ class ForbiddenIslandWorld extends World {
 		double tr = this.heights.get(xmax).get(ymin);
 		double bl = this.heights.get(xmin).get(ymax);
 		double br = this.heights.get(xmax).get(ymax);
-
+		
 		if ((ymax - ymin == 1) && (xmax - xmin == 1)) {
 
 		} else if ((xmax - xmin) % 2 == 0) {
 			// Calculate and set top, bottom, left, and right edge cells
-			this.heights.get(xmin).set((ymin + ymax) / 2, avgRand(tl, tr, xmax - xmin)); // Left edge single cell
-			this.heights.get(xmax).set((ymin + ymax) / 2, avgRand(bl, br, xmax - xmin)); // Right edge single cell
-			this.heights.get((xmin + xmax) / 2).set(ymax, avgRand(tl, bl, xmax - xmin)); // Bottom edge single cell
-			this.heights.get((xmin + xmax) / 2).set(ymin, avgRand(tr, br, xmax - xmin)); // Top edge single cell
+			this.heights.get(xmin).set((ymin + ymax) / 2, avgRand(tl, br, xmax - xmin)); // Left edge single cell
+			this.heights.get(xmax).set((ymin + ymax) / 2, avgRand(tr, br, xmax - xmin)); // Right edge single cell
+			this.heights.get((xmin + xmax) / 2).set(ymax, avgRand(br, bl, xmax - xmin)); // Bottom edge single cell
+			this.heights.get((xmin + xmax) / 2).set(ymin, avgRand(tr, tl, xmax - xmin)); // Top edge single cell
 			this.heights.get((xmin + xmax) / 2).set((ymin + ymax) / 2,
 					(xmax - xmin) * (Math.random() - .5) + (tl + tr + bl + br) / 4); // Middle single cell
 
@@ -320,20 +319,20 @@ class ForbiddenIslandWorld extends World {
 			this.subdivide((xmax + xmin) / 2, xmax, (ymax + ymin) / 2, ymax); // Bottom right recur
 		} else {
 			// Left 2 edge cells
-			this.heights.get(xmin).set((ymin + ymax) / 2, avgRand(tl, tr, xmax - xmin));
-			this.heights.get(xmin).set((ymin + ymax) / 2 + 1, avgRand(tl, tr, xmax - xmin));
+			this.heights.get(xmin).set((ymin + ymax) / 2, avgRand(tl, bl, xmax - xmin));
+			this.heights.get(xmin).set((ymin + ymax) / 2 + 1, avgRand(tl, bl, xmax - xmin));
 
 			// Right 2 edge cells
-			this.heights.get(xmax).set((ymin + ymax) / 2, avgRand(bl, br, xmax - xmin));
-			this.heights.get(xmax).set((ymin + ymax) / 2 + 1, avgRand(bl, br, xmax - xmin));
+			this.heights.get(xmax).set((ymin + ymax) / 2, avgRand(tr, br, xmax - xmin));
+			this.heights.get(xmax).set((ymin + ymax) / 2 + 1, avgRand(tr, br, xmax - xmin));
 
 			// Bottom 2 edge cells
-			this.heights.get((xmin + xmax) / 2).set(ymax, avgRand(tl, bl, xmax - xmin));
-			this.heights.get((xmin + xmax) / 2 + 1).set(ymax, avgRand(tl, bl, xmax - xmin));
+			this.heights.get((xmin + xmax) / 2).set(ymax, avgRand(br, bl, xmax - xmin));
+			this.heights.get((xmin + xmax) / 2 + 1).set(ymax, avgRand(br, bl, xmax - xmin));
 
 			// Top 2 edge cells
-			this.heights.get((xmin + xmax) / 2).set(ymin, avgRand(tr, br, xmax - xmin));
-			this.heights.get((xmin + xmax) / 2 + 1).set(ymin, avgRand(tr, br, xmax - xmin));
+			this.heights.get((xmin + xmax) / 2).set(ymin, avgRand(tr, tl, xmax - xmin));
+			this.heights.get((xmin + xmax) / 2 + 1).set(ymin, avgRand(tr, tl, xmax - xmin));
 
 			// Middle 4 cells
 			this.heights.get((xmin + xmax) / 2).set((ymin + ymax) / 2,
@@ -350,7 +349,6 @@ class ForbiddenIslandWorld extends World {
 			this.subdivide((xmax + xmin) / 2 + 1, xmax, ymin, (ymax + ymin) / 2); // Top right
 			this.subdivide(xmin, (xmax + xmin) / 2, (ymax + ymin) / 2 + 1, ymax); // Bottom left
 			this.subdivide((xmax + xmin) / 2 + 1, xmax, (ymax + ymin) / 2 + 1, ymax); // Bottom right
-																						// recur
 		}
 
 	}
@@ -397,9 +395,10 @@ class Cell {
 
 	// determine the color of this cell
 	private Color getColor() {
-		int x = Math.abs((int) this.height * 255 / ForbiddenIslandWorld.ISLAND_HEIGHT);
-		// System.out.println("colorde: " + x);
-		Color c = new Color(x / 2, x / 2, x / 2);
+		 x = Math.abs((int) this.height * 255 / ForbiddenIslandWorld.ISLAND_HEIGHT);
+		x = Math.min(x, 255);
+		System.out.println("colorde: " + x);
+		Color c = new Color(x / 2, x, x / 2);
 		return c;
 	}
 
@@ -640,7 +639,7 @@ class ExamplesForbidden {
 	// test the onKey Method
 	void testOnKey(Tester t) {
 		this.initTest();
-		IList<Cell> temp = this.ex1.board;
+//		IList<Cell> temp = this.ex1.board;
 		this.ex1.onKeyReleased("m");
 	}
 
