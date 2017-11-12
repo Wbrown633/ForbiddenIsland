@@ -9,7 +9,7 @@ import javalib.worldimages.*;
 class ForbiddenIslandWorld extends World {
 
   // Defines an int constant
-  static final int ISLAND_SIZE = 64;
+  static final int ISLAND_SIZE = 5;
   // define the height of the island
   static final int ISLAND_HEIGHT = ForbiddenIslandWorld.ISLAND_SIZE / 2;
   // All the cells of the game, including the ocean
@@ -135,7 +135,15 @@ class ForbiddenIslandWorld extends World {
     }
 
     // fix the cell links for the rest of the array
-    // for (int i)
+    for (int i = 1; i < this.cells.size() -1; i++) {
+      for (int j = 1; j < this.cells.get(0).size()-1; j++) {
+        Cell center = this.cells.get(i).get(j);
+        center.top = this.cells.get(i).get(j-1);
+        center.bottom = this.cells.get(i).get(j+1);
+        center.right = this.cells.get(i+1).get(j);
+        center.left = this.cells.get(i-1).get(j);
+      }
+    }
 
   }
 
@@ -434,7 +442,6 @@ class ExamplesForbidden {
   void testGame(Tester t) {
     this.initTest();
     this.ex1.listHeightsProc();
-    t.checkExpect(this.ex1.heights, "");
     // this.ex1.initCellsRandom(); // RENDERS THE RANDOM MOUNTAIN
     this.ex1.initCellsMountain(); // RENDERS THE REGULAR MOUNTAIN
     ex1.bigBang(ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE,
@@ -483,26 +490,24 @@ class ExamplesForbidden {
     this.initTest();
     ex1.initCellsMountain();
     // test a cell in the center
+    Cell center =  this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT)
+        .get(ForbiddenIslandWorld.ISLAND_HEIGHT);
     t.checkExpect(
-        this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT)
-            .get(ForbiddenIslandWorld.ISLAND_HEIGHT).left,
+        center.left,
         this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT - 1)
             .get(ForbiddenIslandWorld.ISLAND_HEIGHT));
     t.checkExpect(
-        this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT)
-            .get(ForbiddenIslandWorld.ISLAND_HEIGHT).right,
+        center.right,
         this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT + 1)
             .get(ForbiddenIslandWorld.ISLAND_HEIGHT));
     t.checkExpect(
+        center.top,
         this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT)
-            .get(ForbiddenIslandWorld.ISLAND_HEIGHT - 1).top,
-        this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT)
-            .get(ForbiddenIslandWorld.ISLAND_HEIGHT));
+            .get(ForbiddenIslandWorld.ISLAND_HEIGHT-1));
     t.checkExpect(
+        center.bottom,
         this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT)
-            .get(ForbiddenIslandWorld.ISLAND_HEIGHT + 1).bottom,
-        this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT)
-            .get(ForbiddenIslandWorld.ISLAND_HEIGHT));
+            .get(ForbiddenIslandWorld.ISLAND_HEIGHT + 1));
 
     // test a cell on the right border
     Cell rightBorderCell = this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_SIZE - 1)
