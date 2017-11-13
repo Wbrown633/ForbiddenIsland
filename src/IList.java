@@ -25,7 +25,7 @@ interface IList<Cell> extends Iterable<Cell> {
 
 	// TODO : test
 	// flood all the cells in the given list
-	IList<Cell> flood(IList<Cell> list);
+	IList<Cell> flood();
 
 	
 }
@@ -65,18 +65,12 @@ class MtList implements IList<Cell> {
 
 	// find the coastline cells in this mtlist
 	public IList<Cell> coastline() {
-		return new MtList();
-	}
-
-	// filter the mt list
-	public IList<Cell> filter(IPred<Cell> p) {
 		return this;
 	}
 
-  // implement
-  public IList<Cell> flood(IList<Cell> list) {
-    // TODO Auto-generated method stub
-    return null;
+  // we don't need to flood anything in the mt list
+  public IList<Cell> flood() {
+    return this;
   }
 
 }
@@ -127,15 +121,24 @@ class ConsList implements IList<Cell> {
 	// TODO: implement this method
 	public IList<Cell> coastline() {
 	   IList<Cell> result = new MtList();
+	   IPred<Cell> p = new CanFlood();
 	   for (Cell c : this) {
-	     
+	     if (p.apply(c)) {
+	       result = result.add(c);
+	     }
 	   }
+	   return result;
+	   
 	}
 
   // TODO IMPLEMENT 
-  public IList<Cell> flood(IList<Cell> list) {
-    // TODO Auto-generated method stub
-    return null;
+	// lower the height of each cell in this list by the floodrate 
+  public IList<Cell> flood() {
+    for (Cell c : this.coastline()) { 
+      c.height = c.height - ForbiddenIslandWorld.FLOOD_RATE;
+      c.isFlooded = true;
+    }
+    return this;
   }
 
 }
@@ -174,12 +177,34 @@ interface IPred<T> {
 }
 
 // a class to check if a cell has an Ocean cell neighbor
-class CoastCell implements IPred<Cell> {
-
+class CanFlood implements IPred<Cell> {
+  
+  IPred<Cell> oceanNeighbor, notFlooded;
+  
+  CanFlood(){
+    this.oceanNeighbor = new OceanNeighbor();
+    this.notFlooded = new NotFlooded();
+  }
+  // can this cell be flooded? 
 	// does this cell have an ocean cell neighbor?
-	public boolean apply(Cell t) {
-		return t.top.isOcean() || t.bottom.isOcean() || t.right.isOcean() || t.left.isOcean();
+	public boolean apply(Cell c) {
+		return this.oceanNeighbor.apply(c) && this.notFlooded.apply(c);
 	}
+}
+
+// does this cell have any ocean cell neighbors
+class OceanNeighbor implements IPred<Cell> {
+  
+  public boolean apply(Cell c) {
+    return c.top.isOcean() || c.right.isOcean() || c.bottom.isOcean() || c.left.isOcean();
+  }
+}
+
+// is this cell not flooded? 
+class NotFlooded implements IPred<Cell> {
+  public boolean apply(Cell c) {
+    return !c.isFlooded;
+  }
 }
 
 // a class of utility functions

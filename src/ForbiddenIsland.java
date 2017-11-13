@@ -9,9 +9,11 @@ import javalib.worldimages.*;
 class ForbiddenIslandWorld extends World {
 
 	// Defines an int constant
-	static final int ISLAND_SIZE = 63;
+	static final int ISLAND_SIZE = 10;
 	// define the height of the island
 	static final int ISLAND_HEIGHT = ForbiddenIslandWorld.ISLAND_SIZE / 2;
+	// define the floodrate of the island
+	static final int FLOOD_RATE = 1; 
 	// All the cells of the game, including the ocean
 	IList<Cell> board;
 	// the current height of the ocean
@@ -420,6 +422,11 @@ class Cell {
 	public boolean isOcean() {
 		return false;
 	}
+	
+	// for writing tests, make this a neighbor with that 
+	public void makeNeighbor(Cell c) {
+	  this.left = c;
+	}
 }
 
 class OceanCell extends Cell {
@@ -467,6 +474,13 @@ class ExamplesForbidden {
 	void initTest() {
 		ex1 = new ForbiddenIslandWorld();
 		this.ex1.listHeightsMountain();
+	}
+	
+	// init the test to run the mountain game
+	void initTestMountain() {
+	  ex1 = new ForbiddenIslandWorld();
+	  this.ex1.listHeightsMountain();
+	  this.ex1.initCellsMountain();
 	}
 
 	// test the mountain island height creation
@@ -667,4 +681,46 @@ class ExamplesForbidden {
 		t.checkExpect(this.ex1.player.location,
 				this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT - 1).get(ForbiddenIslandWorld.ISLAND_HEIGHT - 2));
 	}
+
+	// test the coastline method in IList<Cell>
+	void testCoastline(Tester t) {
+	  this.initTestMountain();
+	  t.checkExpect(this.ex1.board.coastline().length(), 5);
+	  
+	}
+	
+	// -----------------------Test Function objects ------------------------------
+	
+	// test the CanFlood function object
+	void testCanFlood(Tester t) {
+	  IPred<Cell> p = new CanFlood();
+	  Cell c = new Cell(1.0, 1, 1);
+	  Cell o1 = new OceanCell(1.0, 2, 2);
+	  t.checkExpect(p.apply(c), false);
+	  t.checkExpect(p.apply(o1), false);
+	  c.makeNeighbor(o1);
+	  t.checkExpect(p.apply(c), true);
+	  
+	}
+	
+	// test the OceanNeighbor function object
+	void testOceanNeighbor(Tester t) {
+	  this.initTestMountain();
+	  IPred<Cell> p = new OceanNeighbor();
+	  Cell c = new Cell(55.0, 1, 1);
+	  Cell o1 = new OceanCell(1.0,1,1);
+	  t.checkExpect(p.apply(o1), true);
+	  t.checkExpect(p.apply(c), false);
+	}
+	
+	// test the NotFlooded function object
+	void testNotFlooded(Tester t) {
+	  this.initTestMountain();
+	  IPred<Cell> p = new NotFlooded();
+	  Cell c = new Cell(1.0, 1, 1);
+	  Cell o1 = new OceanCell(1.0, 1, 1);
+	  t.checkExpect(p.apply(o1), false);
+	  t.checkExpect(p.apply(c), true);	  
+	}
+	
 }
