@@ -410,9 +410,7 @@ class Cell {
 			int r = x / 2;
 			int g = x;
 			int b = x / 2;
-			System.out.println("colorde: " + x + "----"+ this.height);
 			Color c = new Color(r, g, b);
-//			Color c = Color.green;
 			return c;
 		}
 		return Color.red;
