@@ -2,10 +2,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 // an interface to make a list of Cells
-interface IList<T> extends Iterable<T> {
+interface IList<Cell> extends Iterable<Cell> {
 
 	// add the cell to this list of cells
-	IList<T> add(T t);
+	IList<Cell> add(Cell c);
 
 	// return the length of this list
 	int length();
@@ -14,13 +14,10 @@ interface IList<T> extends Iterable<T> {
 	boolean isCons();
 
 	// safe cast this IList to a conslist
-	ConsList<T> asCons();
+	ConsList asCons();
 
 	// does this list contain this item?
-	boolean contains(T t);
-
-	// filter out all items that don't pass the pred
-	IList<T> filter(IPred<T> p);
+	boolean contains(Cell c);
 
 	// return a list of cells that form the coastline
 	// TODO : implement a filter method?
@@ -34,11 +31,11 @@ interface IList<T> extends Iterable<T> {
 }
 
 // a class to represent a list of cells
-class MtList<T> implements IList<T> {
+class MtList implements IList<Cell> {
 
 	// add the given cell to this mt list
-	public IList<T> add(T t) {
-		return new ConsList<T>(t, this);
+	public IList<Cell> add(Cell c) {
+		return new ConsList(c, this);
 	}
 
 	// the length of this mt list
@@ -47,8 +44,8 @@ class MtList<T> implements IList<T> {
 	}
 
 	// an iterator for the mtlist
-	public Iterator<T> iterator() {
-		return new IListIterator<T>(this);
+	public Iterator<Cell> iterator() {
+		return new IListIterator(this);
 	}
 
 	// this isn't a conslist
@@ -57,41 +54,47 @@ class MtList<T> implements IList<T> {
 	}
 
 	// we can't cast an mtlist as a conslist
-	public ConsList<T> asCons() {
+	public ConsList asCons() {
 		throw new ClassCastException("Can't cast an MtList as a ConsList");
 	}
 
 	// the empty list doesn't contain this item
-	public boolean contains(T t) {
+	public boolean contains(Cell t) {
 		return false;
 	}
 
 	// find the coastline cells in this mtlist
 	public IList<Cell> coastline() {
-		return new MtList<Cell>();
+		return new MtList();
 	}
 
 	// filter the mt list
-	public IList<T> filter(IPred<T> p) {
+	public IList<Cell> filter(IPred<Cell> p) {
 		return this;
 	}
+
+  // implement
+  public IList<Cell> flood(IList<Cell> list) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }
 
 // a class to represent a non empty list of cells
-class ConsList<T> implements IList<T> {
+class ConsList implements IList<Cell> {
 
-	T first;
-	IList<T> rest;
+	Cell first;
+	IList<Cell> rest;
 
-	ConsList(T first, IList<T> rest) {
+	ConsList(Cell first, IList<Cell> rest) {
 		this.first = first;
 		this.rest = rest;
 	}
 
 	// add the cell to this list
-	public IList<T> add(T t) {
-		return new ConsList<T>(t, this);
+	public IList<Cell> add(Cell c) {
+		return new ConsList(c, this);
 	}
 
 	// return the length of this list
@@ -100,8 +103,8 @@ class ConsList<T> implements IList<T> {
 	}
 
 	// create an iterator for this Conslist
-	public Iterator<T> iterator() {
-		return new IListIterator<T>(this);
+	public Iterator<Cell> iterator() {
+		return new IListIterator(this);
 	}
 
 	// tell the iterator this is a conslist
@@ -110,12 +113,12 @@ class ConsList<T> implements IList<T> {
 	}
 
 	// cast this list as a conslist
-	public ConsList<T> asCons() {
+	public ConsList asCons() {
 		return this;
 	}
 
 	// does this conslist contain the given item?
-	public boolean contains(T t) {
+	public boolean contains(Cell t) {
 		return this.first.equals(t) || this.rest.contains(t);
 	}
 
@@ -123,28 +126,25 @@ class ConsList<T> implements IList<T> {
 	// on the next tick
 	// TODO: implement this method
 	public IList<Cell> coastline() {
-		IPred<Cell> pred = new CoastCell();
-		return this.filter(pred);
+	   IList<Cell> result = new MtList();
+	   for (Cell c : this) {
+	     
+	   }
 	}
 
-	// filter this list of T by the given predicate
-	public IList<T> filter(IPred<T> p) {
-	    if(p.apply(this.first)) {
-	        return new ConsList<T>(this.first, this.rest.filter(p));
-	      }
-	      else {
-	        return this.rest.filter(p);
-	      }
-	}
-
+  // TODO IMPLEMENT 
+  public IList<Cell> flood(IList<Cell> list) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }
 
-class IListIterator<T> implements Iterator<T> {
+class IListIterator implements Iterator<Cell> {
 
-	IList<T> items;
+	IList<Cell> items;
 
-	IListIterator(IList<T> items) {
+	IListIterator(IList<Cell> items) {
 		this.items = items;
 	}
 
@@ -154,9 +154,9 @@ class IListIterator<T> implements Iterator<T> {
 	}
 
 	// get the next item
-	public T next() {
-		ConsList<T> temp = items.asCons();
-		T result = temp.first;
+	public Cell next() {
+		ConsList temp = items.asCons();
+		Cell result = temp.first;
 		items = temp.rest;
 		return result;
 	}

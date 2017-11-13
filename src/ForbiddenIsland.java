@@ -31,7 +31,7 @@ class ForbiddenIslandWorld extends World {
 
 	ForbiddenIslandWorld() {
 		this.heights = new ArrayList<ArrayList<Double>>();
-		this.board = new MtList<Cell>();
+		this.board = new MtList();
 		this.waterHeight = ForbiddenIslandWorld.ISLAND_SIZE / 2;
 		this.cells = new ArrayList<ArrayList<Cell>>(ForbiddenIslandWorld.ISLAND_SIZE);
 	}
@@ -448,10 +448,10 @@ class ExamplesForbidden {
 	Cell c1 = new Cell(2.0, 1, 1);
 	Cell c2 = new Cell(4.0, 2, 2);
 	Cell c3 = new Cell(5.0, 1, 5);
-	MtList<Cell> mt = new MtList<Cell>();
+	MtList mt = new MtList();
 
-	IList<Cell> l1 = new ConsList<Cell>(c1, mt);
-	IList<Cell> l2 = new ConsList<Cell>(c2, l1);
+	IList<Cell> l1 = new ConsList(c1, mt);
+	IList<Cell> l2 = new ConsList(c2, l1);
 
 	// run the game
 	void testGame(Tester t) {
@@ -642,7 +642,7 @@ class ExamplesForbidden {
 
 	// test the iterator in IList<T>
 	void testIterator(Tester t) {
-		IListIterator<Cell> iterator = new IListIterator<Cell>(this.l2);
+		IListIterator iterator = new IListIterator(this.l2);
 		t.checkExpect(iterator.hasNext(), true);
 		t.checkExpect(iterator.next(), this.c2);
 		t.checkExpect(iterator.hasNext(), true);
