@@ -49,11 +49,15 @@ class ForbiddenIslandWorld extends World {
     for (Cell c : this.board) {      
       w.placeImageXY(c.drawAt(this.image), c.x * ForbiddenIslandWorld.CELL_SIZE,
           c.y * ForbiddenIslandWorld.CELL_SIZE);
-      w.placeImageXY(this.player.image, this.player.xpos * ForbiddenIslandWorld.CELL_SIZE, this.player.ypos * ForbiddenIslandWorld.CELL_SIZE);
-      for (Target t : this.pieces) {
-        w.placeImageXY(t.image, t.location.x * ForbiddenIslandWorld.CELL_SIZE, t.location.y * ForbiddenIslandWorld.CELL_SIZE);
-      }
     }
+    // player
+    w.placeImageXY(this.player.image, this.player.xpos * ForbiddenIslandWorld.CELL_SIZE, this.player.ypos * ForbiddenIslandWorld.CELL_SIZE);
+    // helicopter parts
+    for (Target t : this.pieces) {
+      w.placeImageXY(t.image, t.location.x * ForbiddenIslandWorld.CELL_SIZE, t.location.y * ForbiddenIslandWorld.CELL_SIZE);
+    }
+    // helicopter 
+    w.placeImageXY(helicopter.image, helicopter.location.x * ForbiddenIslandWorld.CELL_SIZE, helicopter.location.y * ForbiddenIslandWorld.CELL_SIZE);
     return w;
   }
 
@@ -243,6 +247,7 @@ class ForbiddenIslandWorld extends World {
   }
   
   // Spawn a given number of helicopter parts
+  // Effect: add new targets to the array list 'pieces'
   public void spawnParts(int parts) {
     Cell spawn = new Cell(1.0,1,1);
     IList<Cell> land = this.board.land();
@@ -259,6 +264,12 @@ class ForbiddenIslandWorld extends World {
       }
       this.pieces.add(new Target(spawn, new Color(255, 0, 255)));
     }
+  }
+  
+  // Spawn the helicopter on the tallest cell
+  public void spawnHelicopter() {
+    IList<Cell> land = this.board.land();
+    this.helicopter = new Helicopter(land.maxHeight(), Color.CYAN);
   }
 
   // Effect: create an IList<Cell> from the given nested Array list of cells
@@ -534,6 +545,7 @@ class ExamplesForbidden {
     //this.ex1.initCellsProc(); // RENDERS THE REGULAR MOUNTAIN
     this.ex1.initCellsProc();
     this.ex1.spawnParts(5);
+    this.ex1.spawnHelicopter();
     //this.ex1.initCellsMountain();
     ex1.bigBang(ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE,
         ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE, 1);
@@ -822,6 +834,25 @@ class ExamplesForbidden {
       t.checkExpect(c.isFlooded, false);
       t.checkExpect(c.isOcean(), false);
     }
+  }
+  
+  // test the max height method
+  void testMaxHeight(Tester t) {
+    Cell c1 = new Cell(2.0, 1,1);
+    Cell c2 = new Cell(8.0, 2,2);
+    Cell c3 = new Cell(9.0, 2,2);
+    Cell c4 = new Cell(1.0, 1,1);
+    Cell c5 = new Cell(2.0 , 0,0);
+     
+    IList<Cell> mt = new MtList();
+    IList<Cell> l1 = new ConsList(c1, mt);
+    IList<Cell> l2 = new ConsList(c2, l1);
+    IList<Cell> l3 = new ConsList(c3, l2);
+    IList<Cell> l4 = new ConsList(c4, l3);
+    IList<Cell> l5 = new ConsList(c5, l4);
+    
+    t.checkExpect(l5.maxHeight(), c3);
+    //t.checkException("No max height of an empty list!", MtList, "maxHeight", mt);
   }
 
   // -----------------------Test Function objects ------------------------------

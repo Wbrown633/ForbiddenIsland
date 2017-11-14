@@ -28,6 +28,12 @@ interface IList<Cell> extends Iterable<Cell> {
 	// return a list of all the land cells in this list
 	IList<Cell> land();
 	
+	// return the cell with the max height in this list
+  Cell maxHeight();
+  
+  // acc helper for max height
+  Cell maxHeightAcc(Cell acc);
+	
 	
 }
 
@@ -77,6 +83,16 @@ class MtList implements IList<Cell> {
   // no land cells in the empty list
   public IList<Cell> land() {
     return this;
+  }
+
+  // no max height of an empty list
+  public Cell maxHeight() {
+    throw new IllegalArgumentException("No max height in an empty list!");
+  }
+
+  // when we reach the base the acc has the max height
+  public Cell maxHeightAcc(Cell acc) {
+    return acc;
   }
 
 }
@@ -158,6 +174,21 @@ class ConsList implements IList<Cell> {
       }
     }
     return result;
+  }
+
+  // initialize the accumulator
+  public Cell maxHeight() {
+    return this.rest.maxHeightAcc(this.first);
+  }
+
+  // if this cell has a higher height, make it the acc
+  public Cell maxHeightAcc(Cell acc) {
+    if (this.first.height > acc.height) {
+      return this.rest.maxHeightAcc(this.first);
+    }
+    else {
+      return this.rest.maxHeightAcc(acc);
+    }
   }
 
 }
