@@ -10,11 +10,13 @@ class Player {
   Cell location;
   int xpos;
   int ypos;
+  WorldImage image;
   
   Player(Cell location) {
      this.location = location;
      this.xpos = location.x;
      this.ypos = location.y;
+     this.image = new CircleImage(20, OutlineMode.SOLID, Color.ORANGE);
   }
   
   // Draws this player onto the background

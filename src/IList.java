@@ -20,13 +20,14 @@ interface IList<Cell> extends Iterable<Cell> {
 	boolean contains(Cell c);
 
 	// return a list of cells that form the coastline
-	// TODO : implement a filter method?
 	IList<Cell> coastline();
 
-	// TODO : test
 	// flood all the cells in the given list
 	IList<Cell> flood();
-
+	
+	// return a list of all the land cells in this list
+	IList<Cell> land();
+	
 	
 }
 
@@ -70,6 +71,11 @@ class MtList implements IList<Cell> {
 
   // we don't need to flood anything in the mt list
   public IList<Cell> flood() {
+    return this;
+  }
+
+  // no land cells in the empty list
+  public IList<Cell> land() {
     return this;
   }
 
@@ -138,6 +144,18 @@ class ConsList implements IList<Cell> {
     for (Cell c : result) { 
       c.height = c.height - ForbiddenIslandWorld.FLOOD_RATE;
       c.isFlooded = true;
+    }
+    return result;
+  }
+
+  // return cells that are not flooded in this list
+  public IList<Cell> land() {
+    IList<Cell> result = new MtList();
+    IPred<Cell> p = new NotFlooded();
+    for (Cell c : this) {
+      if (p.apply(c)) {
+        result = result.add(c);
+      }
     }
     return result;
   }

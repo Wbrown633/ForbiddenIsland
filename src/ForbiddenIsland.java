@@ -38,7 +38,7 @@ class ForbiddenIslandWorld extends World {
   ForbiddenIslandWorld() {
     this.heights = new ArrayList<ArrayList<Double>>();
     this.board = new MtList();
-    this.waterHeight = ForbiddenIslandWorld.ISLAND_SIZE / 2;
+    this.waterHeight = 0;
     this.cells = new ArrayList<ArrayList<Cell>>(ForbiddenIslandWorld.ISLAND_SIZE);
   }
 
@@ -49,7 +49,9 @@ class ForbiddenIslandWorld extends World {
     for (Cell c : this.board) {      
       w.placeImageXY(c.drawAt(this.image), c.x * ForbiddenIslandWorld.CELL_SIZE,
           c.y * ForbiddenIslandWorld.CELL_SIZE);
+      w.placeImageXY(this.player.image, this.player.xpos, this.player.ypos);
     }
+    this.player.xpos += 1;
     return w;
   }
 
@@ -158,6 +160,7 @@ class ForbiddenIslandWorld extends World {
 
   // Effect: create the list of cells for the mountain style of island
   void initCellsMountain() {
+    this.cells = new ArrayList<ArrayList<Cell>>();
     ArrayList<Cell> temp = new ArrayList<Cell>();
     for (int i = 0; i < ForbiddenIslandWorld.ISLAND_SIZE; i++) {
       for (int j = 0; j < ForbiddenIslandWorld.ISLAND_SIZE; j++) {
@@ -173,10 +176,12 @@ class ForbiddenIslandWorld extends World {
     }
     this.linkCells();
     this.listCells(this.cells);
+    this.spawnPlayer();
   }
 
   // Effect: create the list of cells for the random style of island
   void initCellsRandom() {
+    this.cells = new ArrayList<ArrayList<Cell>>();
     ArrayList<Cell> temp = new ArrayList<Cell>();
     for (int i = 0; i < ForbiddenIslandWorld.ISLAND_SIZE; i++) {
       for (int j = 0; j < ForbiddenIslandWorld.ISLAND_SIZE; j++) {
@@ -192,10 +197,12 @@ class ForbiddenIslandWorld extends World {
     }
     this.linkCells();
     this.listCells(this.cells);
+    this.spawnPlayer();
   }
 
   // Effect: create the list of cells for the mountain style of island
   void initCellsProc() {
+    this.cells = new ArrayList<ArrayList<Cell>>();
     ArrayList<Cell> temp = new ArrayList<Cell>();
     for (int i = 0; i < ForbiddenIslandWorld.ISLAND_SIZE; i++) {
       for (int j = 0; j < ForbiddenIslandWorld.ISLAND_SIZE; j++) {
@@ -213,10 +220,28 @@ class ForbiddenIslandWorld extends World {
     }
     this.linkCells();
     this.listCells(this.cells);
+    this.spawnPlayer();
+  }
+  
+  // Can only be called after the cells have been initialized
+  // Effect: create the player in this game 
+  public void spawnPlayer() {
+    Cell spawn; 
+    IList<Cell> land = this.board.land();
+    // get a land cell 
+    // TODO: make this random
+    if (land.iterator().hasNext()) {
+      spawn = land.iterator().next();
+      this.player = new Player(spawn);  
+    }
+    else {
+      throw new IllegalArgumentException("No safe land to spawn a player on!");
+    }
   }
 
   // Effect: create an IList<Cell> from the given nested Array list of cells
   IList<Cell> listCells(ArrayList<ArrayList<Cell>> cells) {
+    this.board = new MtList();
     for (ArrayList<Cell> list : cells) {
       for (Cell c : list) {
         this.board = this.board.add(c);
@@ -262,7 +287,6 @@ class ForbiddenIslandWorld extends World {
 
     // Initialize middle and edge cells for recursion base
     if (size % 2 == 0) {
-      // if (true) {
       // Calculate and set top, bottom, left, and right edge cells
       // Calculate and set top, bottom, left, and right edge cells
       this.heights.get(0).set(size / 2, 1.0); // Left edge single cell
@@ -483,10 +507,13 @@ class ExamplesForbidden {
   void testGame(Tester t) {
     this.initTest();
     this.ex1.listHeightsProc();
+    this.ex1.listHeightsMountain();
     // this.ex1.initCellsRandom(); // RENDERS THE RANDOM MOUNTAIN
-    this.ex1.initCellsProc(); // RENDERS THE REGULAR MOUNTAIN
+    //this.ex1.initCellsProc(); // RENDERS THE REGULAR MOUNTAIN
+    this.ex1.initCellsProc();
+    this.ex1.initCellsMountain();
     ex1.bigBang(ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE,
-        ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE, 0);
+        ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE, 1);
   }
 
   // initialize the test conditions
@@ -531,6 +558,8 @@ class ExamplesForbidden {
       }
       t.checkExpect(flatten.contains(c.height), true);
     }
+    this.ex1.initCellsMountain();
+    t.checkExpect(this.ex1.cells.size(), ForbiddenIslandWorld.ISLAND_SIZE);
   }
   
   // test the list cells method
@@ -563,6 +592,16 @@ class ExamplesForbidden {
     this.ex1.player = p.movePlayer("up");
     t.checkExpect(this.ex1.player.location, this.ex1.cells
         .get(ForbiddenIslandWorld.ISLAND_HEIGHT - 1).get(ForbiddenIslandWorld.ISLAND_HEIGHT - 2));
+  }
+  
+  // test the spawnPlayer method
+  void testSpawnPlayer(Tester t) {
+    this.initTest();
+    this.ex1.listHeightsMountain();
+    this.ex1.initCellsMountain();
+    this.ex1.spawnPlayer();
+    t.checkExpect(this.ex1.player.location, "");
+   
   }
 
 
@@ -738,6 +777,15 @@ class ExamplesForbidden {
     this.initTestMountain();
     for (Cell c : this.ex1.board.flood()) {
       t.checkExpect(c.isFlooded, true);
+    }
+  }
+  
+  // test the land method
+  void testLand(Tester t) {
+    this.initTestMountain();
+    for (Cell c : this.ex1.board.land()) {
+      t.checkExpect(c.isFlooded, false);
+      t.checkExpect(c.isOcean(), false);
     }
   }
 
