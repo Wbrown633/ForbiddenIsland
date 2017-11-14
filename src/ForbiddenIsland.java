@@ -9,7 +9,7 @@ import javalib.worldimages.*;
 class ForbiddenIslandWorld extends World {
 
   // Defines an int constant
-  static final int ISLAND_SIZE = 10;
+  static final int ISLAND_SIZE = 40;
   // define the height of the island
   static final int ISLAND_HEIGHT = ForbiddenIslandWorld.ISLAND_SIZE / 2;
   // define the floodrate of the island
@@ -30,6 +30,10 @@ class ForbiddenIslandWorld extends World {
   static final int CELL_SIZE = 10;
   // the player
   Player player;
+  // pieces for the player to pick up 
+  ArrayList<Target> pieces;
+  // the helicopter
+  Target helicopter;
 
   ForbiddenIslandWorld() {
     this.heights = new ArrayList<ArrayList<Double>>();
@@ -41,48 +45,50 @@ class ForbiddenIslandWorld extends World {
   // Render the game
   // EFFECT: update the stored image for the
   public WorldScene makeScene() {
-    for (Cell c : this.board) {
-      scene.placeImageXY(c.drawAt(this.image), c.x * ForbiddenIslandWorld.CELL_SIZE,
+    WorldScene w = new WorldScene(ForbiddenIslandWorld.ISLAND_SIZE * 100, ForbiddenIslandWorld.ISLAND_SIZE);
+    for (Cell c : this.board) {      
+      w.placeImageXY(c.drawAt(this.image), c.x * ForbiddenIslandWorld.CELL_SIZE,
           c.y * ForbiddenIslandWorld.CELL_SIZE);
     }
-    return scene;
+    return w;
   }
 
   // Handle the key presses of the player
   // EFFECT: move the player character and restart the game if needed
   public void onKeyReleased(String key) {
-    System.out.println(key);
     // 'm' render the regular mountain
     if (key == "m") {
       this.listHeightsMountain();
       this.initCellsMountain();
-
     }
     // 'r' render the random mountain
-    if (key == "r") {
+    else if (key == "r") {
       this.listHeightsMountain();
       this.initCellsRandom();
     }
     // 't' render the procedural mountain
-    if (key == "t") {
+    else if (key == "t") {
       this.listHeightsProc();
       this.initCellsProc();
     }
     // 'w' move the player to the top cell
-    if (key == "w") {
+    else if (key == "w") {
       this.player = this.player.movePlayer("up");
     }
     // 'a' move the player to the left cell
-    if (key == "a") {
+    else if (key == "a") {
       this.player = this.player.movePlayer("left");
     }
     // 's' move the player to the bottom cell
-    if (key == "s") {
+    else if (key == "s") {
       this.player = this.player.movePlayer("down");
     }
     // 'd' move the player to the right cell
-    if (key == "d") {
+    else if (key == "d") {
       this.player = this.player.movePlayer("right");
+    }
+    else if (key == "escape") {
+      this.worldEnds();
     }
   }
 
@@ -544,8 +550,8 @@ class ExamplesForbidden {
   // test the onKey Method
   void testOnKey(Tester t) {
     this.initTest();
-    // IList<Cell> temp = this.ex1.board;
-    this.ex1.onKeyReleased("m");
+    IList<Cell> temp = this.ex1.board;
+    this.ex1.onKeyReleased("r");
   }
 
   // test movePlayer
@@ -718,8 +724,21 @@ class ExamplesForbidden {
   // test the coastline method in IList<Cell>
   void testCoastline(Tester t) {
     this.initTestMountain();
-    t.checkExpect(this.ex1.board.coastline().length(), 5);
+    IPred<Cell> p = new OceanNeighbor();
+    for (Cell c : this.ex1.board.coastline()) {
+      t.checkExpect(c.isFlooded, false);
+      t.checkExpect(c.isOcean(), false);
+      t.checkExpect(p.apply(c), true);
+    }
 
+  }
+  
+  // test the flood method 
+  void testFlood(Tester t) {
+    this.initTestMountain();
+    for (Cell c : this.ex1.board.flood()) {
+      t.checkExpect(c.isFlooded, true);
+    }
   }
 
   // -----------------------Test Function objects ------------------------------

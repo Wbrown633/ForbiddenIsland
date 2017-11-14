@@ -134,11 +134,12 @@ class ConsList implements IList<Cell> {
   // TODO IMPLEMENT 
 	// lower the height of each cell in this list by the floodrate 
   public IList<Cell> flood() {
-    for (Cell c : this.coastline()) { 
+    IList<Cell> result = this.coastline();
+    for (Cell c : result) { 
       c.height = c.height - ForbiddenIslandWorld.FLOOD_RATE;
       c.isFlooded = true;
     }
-    return this;
+    return result;
   }
 
 }
