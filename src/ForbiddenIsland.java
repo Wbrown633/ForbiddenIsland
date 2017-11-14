@@ -9,7 +9,7 @@ import javalib.worldimages.*;
 class ForbiddenIslandWorld extends World {
 
   // Defines an int constant
-  static final int ISLAND_SIZE = 40;
+  static final int ISLAND_SIZE = 64;
   // define the height of the island
   static final int ISLAND_HEIGHT = ForbiddenIslandWorld.ISLAND_SIZE / 2;
   // define the floodrate of the island
@@ -49,9 +49,8 @@ class ForbiddenIslandWorld extends World {
     for (Cell c : this.board) {      
       w.placeImageXY(c.drawAt(this.image), c.x * ForbiddenIslandWorld.CELL_SIZE,
           c.y * ForbiddenIslandWorld.CELL_SIZE);
-      w.placeImageXY(this.player.image, this.player.xpos, this.player.ypos);
+      w.placeImageXY(this.player.image, this.player.xpos * ForbiddenIslandWorld.CELL_SIZE, this.player.ypos * ForbiddenIslandWorld.CELL_SIZE);
     }
-    this.player.xpos += 1;
     return w;
   }
 
@@ -225,6 +224,7 @@ class ForbiddenIslandWorld extends World {
   
   // Can only be called after the cells have been initialized
   // Effect: create the player in this game 
+  // TODO: test
   public void spawnPlayer() {
     Cell spawn; 
     IList<Cell> land = this.board.land();
@@ -507,11 +507,11 @@ class ExamplesForbidden {
   void testGame(Tester t) {
     this.initTest();
     this.ex1.listHeightsProc();
-    this.ex1.listHeightsMountain();
+    //this.ex1.listHeightsMountain();
     // this.ex1.initCellsRandom(); // RENDERS THE RANDOM MOUNTAIN
     //this.ex1.initCellsProc(); // RENDERS THE REGULAR MOUNTAIN
     this.ex1.initCellsProc();
-    this.ex1.initCellsMountain();
+    //this.ex1.initCellsMountain();
     ex1.bigBang(ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE,
         ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE, 1);
   }
@@ -600,7 +600,8 @@ class ExamplesForbidden {
     this.ex1.listHeightsMountain();
     this.ex1.initCellsMountain();
     this.ex1.spawnPlayer();
-    t.checkExpect(this.ex1.player.location, "");
+    t.checkExpect(this.ex1.player.location.isOcean(), false);
+    t.checkExpect(this.ex1.board.land(), "");
    
   }
 

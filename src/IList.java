@@ -153,7 +153,7 @@ class ConsList implements IList<Cell> {
     IList<Cell> result = new MtList();
     IPred<Cell> p = new NotFlooded();
     for (Cell c : this) {
-      if (p.apply(c)) {
+      if (p.apply(c) && !c.isOcean()) {
         result = result.add(c);
       }
     }
