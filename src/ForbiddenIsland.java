@@ -31,7 +31,7 @@ class ForbiddenIslandWorld extends World {
   // the player
   Player player;
   // pieces for the player to pick up 
-  ArrayList<Target> pieces;
+  ArrayList<Target> pieces = new ArrayList<Target>();
   // the helicopter
   Target helicopter;
 
@@ -50,6 +50,9 @@ class ForbiddenIslandWorld extends World {
       w.placeImageXY(c.drawAt(this.image), c.x * ForbiddenIslandWorld.CELL_SIZE,
           c.y * ForbiddenIslandWorld.CELL_SIZE);
       w.placeImageXY(this.player.image, this.player.xpos * ForbiddenIslandWorld.CELL_SIZE, this.player.ypos * ForbiddenIslandWorld.CELL_SIZE);
+      for (Target t : this.pieces) {
+        w.placeImageXY(t.image, t.location.x * ForbiddenIslandWorld.CELL_SIZE, t.location.y * ForbiddenIslandWorld.CELL_SIZE);
+      }
     }
     return w;
   }
@@ -236,6 +239,25 @@ class ForbiddenIslandWorld extends World {
     }
     else {
       throw new IllegalArgumentException("No safe land to spawn a player on!");
+    }
+  }
+  
+  // Spawn a given number of helicopter parts
+  public void spawnParts(int parts) {
+    Cell spawn = new Cell(1.0,1,1);
+    IList<Cell> land = this.board.land();
+    // get a random cell on the land
+    
+    for (int i = 0; i < parts; i++) {
+      int rand = (int) (Math.random() * land.length());
+      int counter = 0;
+      for (Cell c : land) {
+        if (counter == rand) {
+          spawn = c;
+        }
+        counter += 1;
+      }
+      this.pieces.add(new Target(spawn, new Color(255, 0, 255)));
     }
   }
 
@@ -511,6 +533,7 @@ class ExamplesForbidden {
     // this.ex1.initCellsRandom(); // RENDERS THE RANDOM MOUNTAIN
     //this.ex1.initCellsProc(); // RENDERS THE REGULAR MOUNTAIN
     this.ex1.initCellsProc();
+    this.ex1.spawnParts(5);
     //this.ex1.initCellsMountain();
     ex1.bigBang(ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE,
         ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE, 1);
@@ -601,8 +624,19 @@ class ExamplesForbidden {
     this.ex1.initCellsMountain();
     this.ex1.spawnPlayer();
     t.checkExpect(this.ex1.player.location.isOcean(), false);
-    t.checkExpect(this.ex1.board.land(), "");
-   
+    t.checkExpect(this.ex1.board.land().contains(this.ex1.player.location), true);
+  }
+  
+  // test the spawnParts method
+  void testSpawnParts(Tester t) {
+    this.initTest();
+    this.ex1.listHeightsProc();
+    this.ex1.initCellsProc();
+    this.ex1.spawnParts(10);
+    IList<Cell> land = this.ex1.board.land();
+    for (Target target : this.ex1.pieces) {
+      t.checkExpect(land.contains(target.location), true);
+    }
   }
 
 
