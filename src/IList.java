@@ -249,25 +249,28 @@ interface IPred<T> {
 // a class to check if a cell has an Ocean cell neighbor
 class CanFlood implements IPred<Cell> {
   
-  IPred<Cell> oceanNeighbor, notFlooded;
+  IPred<Cell> waterNeighbor, notFlooded;
   
   CanFlood(){
-    this.oceanNeighbor = new OceanNeighbor();
+    this.waterNeighbor = new WaterNeighbor();
     this.notFlooded = new NotFlooded();
   }
   
   // can this cell be flooded? 
 	// does this cell have an ocean cell neighbor?
 	public boolean apply(Cell c) {
-		return this.oceanNeighbor.apply(c) && this.notFlooded.apply(c);
+		return this.waterNeighbor.apply(c) && this.notFlooded.apply(c);
 	}
 }
 
 // does this cell have any ocean cell neighbors
-class OceanNeighbor implements IPred<Cell> {
+class WaterNeighbor implements IPred<Cell> {
   
   public boolean apply(Cell c) {
-    return c.top.isOcean() || c.right.isOcean() || c.bottom.isOcean() || c.left.isOcean();
+    return c.top.isOcean() || c.top.isFlooded
+        || c.right.isOcean() || c.right.isFlooded
+        || c.bottom.isOcean() || c.bottom.isFlooded
+        || c.left.isOcean() || c.left.isFlooded;
   }
 }
 

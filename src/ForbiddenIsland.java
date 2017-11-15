@@ -507,14 +507,14 @@ class Cell {
     int g;
     int b;
     if (!this.isFlooded) {
-      if (x >= 0 && x <= 255) {
+      if (this.height >= 0 && this.height <= 255) {
         r = x / 2;
         g = x / 2 + 128;
         b = x / 2;
       }
-      else if (x < 0) {
+      else if (this.height < 0) {
         r = 255;
-        g = -x;
+        g = Math.abs(x);
         b = 0;
       }
       else {
@@ -526,7 +526,8 @@ class Cell {
     else {
       r = 0;
       g = 0;
-      b = 255 + x;
+      System.out.println("debug: blue rgb value outof bounds: " + x + "---" + this.height);
+      b = 255 - Math.abs(x);
     }
     return new Color(r, g, b);
   }
@@ -590,7 +591,7 @@ class ExamplesForbidden {
     this.ex1.initCellsProc();
     this.ex1.startGame();
     ex1.bigBang(ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE,
-        ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE, 1.0);
+        ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE, .5);
   }
 
   // initialize the test conditions
@@ -803,7 +804,7 @@ class ExamplesForbidden {
     Cell c2 = new OceanCell(1.0, 1, 4);
     c1.makeNeighbor(c2);
     t.checkExpect(c1.left.equals(c2), true);
-    IPred<Cell> p = new OceanNeighbor();
+    IPred<Cell> p = new WaterNeighbor();
     t.checkExpect(p.apply(c1), true);
     t.checkExpect(c1.right.equals(c1), true);
   }
@@ -887,7 +888,7 @@ class ExamplesForbidden {
   // test the coastline method in IList<Cell>
   void testCoastline(Tester t) {
     this.initTestMountain();
-    IPred<Cell> p = new OceanNeighbor();
+    IPred<Cell> p = new WaterNeighbor();
     for (Cell c : this.ex1.board.coastline()) {
       t.checkExpect(c.isFlooded, false);
       t.checkExpect(c.isOcean(), false);
@@ -954,7 +955,7 @@ class ExamplesForbidden {
   // test the OceanNeighbor function object
   void testOceanNeighbor(Tester t) {
     this.initTestMountain();
-    IPred<Cell> p = new OceanNeighbor();
+    IPred<Cell> p = new WaterNeighbor();
     Cell c = new Cell(55.0, 1, 1);
     Cell o1 = new OceanCell(1.0, 1, 1);
     t.checkExpect(p.apply(o1), true);
