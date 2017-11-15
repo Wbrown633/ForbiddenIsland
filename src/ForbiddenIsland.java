@@ -15,7 +15,7 @@ class ForbiddenIslandWorld extends World {
   // define the floodrate of the island
   static final int FLOOD_RATE = 1;
   // helicopter pieces in the game
-  static final int PARTS = 3;
+  static final int PARTS = 5;
   // cell size
   static final int CELL_SIZE = 10;
   // All the cells of the game, including the ocean
@@ -114,9 +114,10 @@ class ForbiddenIslandWorld extends World {
   
   // Last Scene of the game win or lose
   public WorldScene lastScene(String msg) {
+    int screensize = ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE;
     WorldScene w = new WorldScene(ForbiddenIslandWorld.ISLAND_SIZE * 100,
         ForbiddenIslandWorld.ISLAND_SIZE * 100);
-    w.placeImageXY(new TextImage(msg, Color.RED), 100, 100);
+    w.placeImageXY(new TextImage(msg, Color.RED), screensize/2, screensize/2);
     return w;
   }
 
