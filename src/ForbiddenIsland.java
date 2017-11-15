@@ -9,7 +9,7 @@ import javalib.worldimages.*;
 class ForbiddenIslandWorld extends World {
 
   // Defines an int constant
-  static final int ISLAND_SIZE = 64;
+  static final int ISLAND_SIZE = 62;
   // define the height of the island
   static final int ISLAND_HEIGHT = ForbiddenIslandWorld.ISLAND_SIZE / 2;
   // define the floodrate of the island
@@ -448,11 +448,11 @@ class ForbiddenIslandWorld extends World {
   }
 
   double avgRand(double a, double b, int size) {
-    return (a + b) / 2 + (Math.random() - .5) * 5;
+    return (a + b) / 2 + (Math.random() - .5) * size;
   }
 
   double avgRandM(double a, double b, double c, double d, int size) {
-    return (a + b + c + d) / 4 + (Math.random() - .5) * 5;
+    return (a + b + c + d) / 4 + (Math.random() - .5) * size;
   }
 
 }
@@ -494,14 +494,32 @@ class Cell {
   // determine the color of this cell
   private Color getColor() {
     int x = (int) (this.height * 255) / ForbiddenIslandWorld.ISLAND_SIZE;
-    if (x >= 0 && x <= 255) {
-      int r = x / 2;
-      int g = x;
-      int b = x / 2;
-      Color c = new Color(r, g, b);
-      return c;
+    int r;
+    int g;
+    int b;
+    if (!this.isFlooded) {
+      if (x >= 0 && x <= 255) {
+        r = x / 2;
+        g = x / 2 + 128;
+        b = x / 2;
+      }
+      else if (x < 0) {
+        r = 255;
+        g = -x;
+        b = 0;
+      }
+      else {
+        r = 127;
+        g = 255;
+        b = 127;
+      }
     }
-    return Color.red;
+    else {
+      r = 0;
+      g = 0;
+      b = -x;
+    }
+    return new Color(r, g, b);
   }
 
   // is this cell an ocean cell?
