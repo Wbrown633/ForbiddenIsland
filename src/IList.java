@@ -22,7 +22,7 @@ interface IList<Cell> extends Iterable<Cell> {
 	// return a list of cells that form the coastline
 	IList<Cell> coastline();
 
-	// flood all the cells in the given list
+	// flood the proper cells
 	IList<Cell> flood();
 	
 	// return a list of all the land cells in this list

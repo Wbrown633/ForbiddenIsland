@@ -62,6 +62,15 @@ class ForbiddenIslandWorld extends World {
     w.placeImageXY(helicopter.image, helicopter.location.x * ForbiddenIslandWorld.CELL_SIZE, helicopter.location.y * ForbiddenIslandWorld.CELL_SIZE);
     return w;
   }
+  
+  public void onTick() {
+    for (int i = this.pieces.size() - 1; i >= 0; i--) {
+      Target piece = this.pieces.get(i);
+      if (player.isTouching(piece)) {
+        this.pieces.remove(piece);
+      }
+    }
+  }
 
   // Handle the key presses of the player
   // EFFECT: move the player character and restart the game if needed
@@ -533,6 +542,14 @@ class Cell {
   // for writing tests, make this a neighbor with that
   public void makeNeighbor(Cell c) {
     this.left = c;
+  }
+  
+  // is this cell the same as the given cell?
+  public boolean sameCell(Cell that) {
+    return this.x == that.x
+        && this.y == that.y
+        && this.height == that.height
+        && this.isFlooded == that.isFlooded;
   }
 }
 

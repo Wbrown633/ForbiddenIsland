@@ -53,5 +53,12 @@ class Player {
       return this;
     }
   }
+  
+  // is the player on the same cell as the given target? 
+  public boolean isTouching(Target t) {
+    return this.location.sameCell(t.location);
+  }
+  
+  
 
 }
