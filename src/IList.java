@@ -33,8 +33,9 @@ interface IList<Cell> extends Iterable<Cell> {
   
   // acc helper for max height
   Cell maxHeightAcc(Cell acc);
-	
-	
+  
+  // get a random cell from this list 
+  Cell randomCell();	
 }
 
 // a class to represent a list of cells
@@ -93,6 +94,11 @@ class MtList implements IList<Cell> {
   // when we reach the base the acc has the max height
   public Cell maxHeightAcc(Cell acc) {
     return acc;
+  }
+
+  // cannot get a random cell from the empty list 
+  public Cell randomCell() {
+    throw new IllegalArgumentException("Cannot get a random element of an empty list!");
   }
 
 }
@@ -189,6 +195,20 @@ class ConsList implements IList<Cell> {
     else {
       return this.rest.maxHeightAcc(acc);
     }
+  }
+
+  // get a random cell from this list
+  public Cell randomCell() {
+    int rand = (int) (Math.random() * this.length());
+    int counter = 0;
+    Cell result = this.first;
+    for (Cell c : this) {
+      if (counter == rand) {
+        result = c;
+      }
+      counter += 1;
+    }
+    return result;
   }
 
 }

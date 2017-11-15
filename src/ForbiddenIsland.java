@@ -15,7 +15,9 @@ class ForbiddenIslandWorld extends World {
   // define the floodrate of the island
   static final int FLOOD_RATE = 1;
   // helicopter pieces in the game
-  static final int PARTS = 0;
+  static final int PARTS = 3;
+  // cell size
+  static final int CELL_SIZE = 10;
   // All the cells of the game, including the ocean
   IList<Cell> board;
   // the current height of the ocean
@@ -28,11 +30,9 @@ class ForbiddenIslandWorld extends World {
   WorldImage image = new EmptyImage();
   // temp for testing
   WorldScene scene = new WorldScene(ISLAND_SIZE * 100, ISLAND_SIZE * 100);
-  // cell size
-  static final int CELL_SIZE = 10;
   // the player
   Player player;
-  // pieces for the player to pick up 
+  // pieces for the player to pick up
   ArrayList<Target> pieces = new ArrayList<Target>();
   // the helicopter
   Target helicopter;
@@ -44,35 +44,42 @@ class ForbiddenIslandWorld extends World {
     this.cells = new ArrayList<ArrayList<Cell>>(ForbiddenIslandWorld.ISLAND_SIZE);
   }
 
-  // Render the game
-  // EFFECT: update the stored image for the
+  // Make the scene to display the game on every tick
   public WorldScene makeScene() {
-    WorldScene w = new WorldScene(ForbiddenIslandWorld.ISLAND_SIZE * 100, ForbiddenIslandWorld.ISLAND_SIZE);
-    for (Cell c : this.board) {      
+    WorldScene w = new WorldScene(ForbiddenIslandWorld.ISLAND_SIZE * 100,
+        ForbiddenIslandWorld.ISLAND_SIZE);
+    // Render the Cells 
+    for (Cell c : this.board) {
       w.placeImageXY(c.drawAt(this.image), c.x * ForbiddenIslandWorld.CELL_SIZE,
           c.y * ForbiddenIslandWorld.CELL_SIZE);
     }
-    // player
-    w.placeImageXY(this.player.image, this.player.xpos * ForbiddenIslandWorld.CELL_SIZE, this.player.ypos * ForbiddenIslandWorld.CELL_SIZE);
-    // helicopter parts
+    // Render  player
+    w.placeImageXY(this.player.image, this.player.xpos * ForbiddenIslandWorld.CELL_SIZE,
+        this.player.ypos * ForbiddenIslandWorld.CELL_SIZE);
+    // Render helicopter parts
     for (Target t : this.pieces) {
-      w.placeImageXY(t.image, t.location.x * ForbiddenIslandWorld.CELL_SIZE, t.location.y * ForbiddenIslandWorld.CELL_SIZE);
+      w.placeImageXY(t.image, t.location.x * ForbiddenIslandWorld.CELL_SIZE,
+          t.location.y * ForbiddenIslandWorld.CELL_SIZE);
     }
-    // helicopter 
-    w.placeImageXY(helicopter.image, helicopter.location.x * ForbiddenIslandWorld.CELL_SIZE, helicopter.location.y * ForbiddenIslandWorld.CELL_SIZE);
+    // Render helicopter
+    w.placeImageXY(helicopter.image, helicopter.location.x * ForbiddenIslandWorld.CELL_SIZE,
+        helicopter.location.y * ForbiddenIslandWorld.CELL_SIZE);
     return w;
   }
-  
+
   public void onTick() {
+    // if the player is touching one of the helicopter pieces, remove it from the map
     for (int i = this.pieces.size() - 1; i >= 0; i--) {
       Target piece = this.pieces.get(i);
       if (player.isTouching(piece)) {
         this.pieces.remove(piece);
       }
-    }    
+    }
+    // if the player is touching the helicopter and has all the pieces they win
     if (player.isTouching(helicopter) && this.pieces.isEmpty()) {
       this.endOfWorld("YOU WIN!!!");
     }
+    // if the player is in a flooded cell they drown and lose
     if (player.location.isFlooded) {
       this.endOfWorld("YOU LOSE :( ");
     }
@@ -99,18 +106,20 @@ class ForbiddenIslandWorld extends World {
       this.initCellsProc();
       this.startGame();
     }
-    // handle player movement using the arrow keys 
+    // handle player movement using the arrow keys
     else if (key.equals("up") || key.equals("down") || key.equals("left") || key.equals("right")) {
       this.player = this.player.movePlayer(key);
     }
   }
   
+  // Last Scene of the game win or lose
   public WorldScene lastScene(String msg) {
-    WorldScene w = new WorldScene(ForbiddenIslandWorld.ISLAND_SIZE * 100, ForbiddenIslandWorld.ISLAND_SIZE * 100);
+    WorldScene w = new WorldScene(ForbiddenIslandWorld.ISLAND_SIZE * 100,
+        ForbiddenIslandWorld.ISLAND_SIZE * 100);
     w.placeImageXY(new TextImage(msg, Color.RED), 100, 100);
     return w;
   }
-  
+
   // reset or start the game for the first time
   void startGame() {
     this.spawnPlayer();
@@ -246,45 +255,24 @@ class ForbiddenIslandWorld extends World {
     this.listCells(this.cells);
     this.spawnPlayer();
   }
-  
+
   // Can only be called after the cells have been initialized
-  // Effect: create the player in this game 
-  // TODO: test
+  // Effect: create the player in this game
   public void spawnPlayer() {
-    Cell spawn; 
-    IList<Cell> land = this.board.land();
-    // get a land cell 
-    // TODO: make this random
-    if (land.iterator().hasNext()) {
-      spawn = land.iterator().next();
-      this.player = new Player(spawn);  
-    }
-    else {
-      throw new IllegalArgumentException("No safe land to spawn a player on!");
-    }
+    this.player = new Player(this.board.land().randomCell());
   }
-  
+
   // Spawn a given number of helicopter parts
   // Effect: add new targets to the array list 'pieces'
   public void spawnParts(int parts) {
     this.pieces = new ArrayList<Target>();
-    Cell spawn = new Cell(1.0,1,1);
     IList<Cell> land = this.board.land();
     // get a random cell on the land
-    
     for (int i = 0; i < parts; i++) {
-      int rand = (int) (Math.random() * land.length());
-      int counter = 0;
-      for (Cell c : land) {
-        if (counter == rand) {
-          spawn = c;
-        }
-        counter += 1;
-      }
-      this.pieces.add(new Target(spawn, new Color(255, 0, 255)));
+      this.pieces.add(new Target(land.randomCell(), new Color(255, 0, 255)));
     }
   }
-  
+
   // Spawn the helicopter on the tallest cell
   public void spawnHelicopter() {
     IList<Cell> land = this.board.land();
@@ -540,11 +528,12 @@ class Cell {
   public void makeNeighbor(Cell c) {
     this.left = c;
   }
-  
+
   // is this cell's location close to that cell's location
   public boolean isTouching(Cell that) {
-    return Math.sqrt(Math.abs(this.x - that.x) * Math.abs(this.x - that.x) + 
-        Math.abs(this.y - that.y) * Math.abs(this.y - that.y)) <= ForbiddenIslandWorld.CELL_SIZE/4;
+    return Math.sqrt(Math.abs(this.x - that.x) * Math.abs(this.x - that.x)
+        + Math.abs(this.y - that.y) * Math.abs(this.y - that.y)) <= ForbiddenIslandWorld.CELL_SIZE
+            / 4;
   }
 }
 
@@ -578,21 +567,16 @@ class ExamplesForbidden {
 
   IList<Cell> l1 = new ConsList(c1, mt);
   IList<Cell> l2 = new ConsList(c2, l1);
-  
-  
-  // ------------------------------------ World Tests --------------------------------------
-  
+
+  // ------------------------------------ World Tests
+  // --------------------------------------
+
   // run the game
   void testGame(Tester t) {
     this.initTest();
     this.ex1.listHeightsProc();
-    //this.ex1.listHeightsMountain();
-    // this.ex1.initCellsRandom(); // RENDERS THE RANDOM MOUNTAIN
-    //this.ex1.initCellsProc(); // RENDERS THE REGULAR MOUNTAIN
     this.ex1.initCellsProc();
-    this.ex1.spawnParts(5);
-    this.ex1.spawnHelicopter();
-    //this.ex1.initCellsMountain();
+    this.ex1.startGame();
     ex1.bigBang(ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE,
         ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE, 1);
   }
@@ -642,7 +626,7 @@ class ExamplesForbidden {
     this.ex1.initCellsMountain();
     t.checkExpect(this.ex1.cells.size(), ForbiddenIslandWorld.ISLAND_SIZE);
   }
-  
+
   // test the list cells method
   void testListCells(Tester t) {
     this.initTest();
@@ -655,7 +639,7 @@ class ExamplesForbidden {
     for (Cell c : flat) {
       t.checkExpect(this.ex1.board.contains(c), true);
     }
-  }  
+  }
 
   // test the onKey Method
   void testOnKey(Tester t) {
@@ -664,17 +648,6 @@ class ExamplesForbidden {
     this.ex1.onKeyReleased("r");
   }
 
-  // test movePlayer
-  void testMovePlayer(Tester t) {
-    this.initTest();
-    this.ex1.initCellsMountain();
-    Player p = new Player(this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT - 1)
-        .get(ForbiddenIslandWorld.ISLAND_HEIGHT - 1));
-    this.ex1.player = p.movePlayer("up");
-    t.checkExpect(this.ex1.player.location, this.ex1.cells
-        .get(ForbiddenIslandWorld.ISLAND_HEIGHT - 1).get(ForbiddenIslandWorld.ISLAND_HEIGHT - 2));
-  }
-  
   // test the spawnPlayer method
   void testSpawnPlayer(Tester t) {
     this.initTest();
@@ -684,7 +657,7 @@ class ExamplesForbidden {
     t.checkExpect(this.ex1.player.location.isOcean(), false);
     t.checkExpect(this.ex1.board.land().contains(this.ex1.player.location), true);
   }
-  
+
   // test the spawnParts method
   void testSpawnParts(Tester t) {
     this.initTest();
@@ -697,8 +670,7 @@ class ExamplesForbidden {
     }
   }
 
-
-  // -------------------------- Test Cell Linking ---------------------------------------------------------------
+  // -------------------------- Test Cell Linking ---------------------
 
   // test the link Cells method
   void testLinkCells(Tester t) {
@@ -793,10 +765,58 @@ class ExamplesForbidden {
 
   }
 
-  // ------------------------------------- Test Cell Methods ---------------------------------------------
+  // ------------------------------------- Test Cell Methods
+  // ---------------------------------------------
 
+  void testIsOcean(Tester t) {
+    Cell c1 = new Cell(1.0, 1, 1);
+    Cell o1 = new OceanCell(1.4, 1, 1);
+    t.checkExpect(c1.isOcean(), false);
+    t.checkExpect(o1.isOcean(), true);
+  }
 
-  // -------------------------------------- Test IList Methods --------------------------------------------
+  // test isTouching in Cell class
+  void testIsTouching(Tester t) {
+    Cell c3 = new Cell(2.0, 100, 100);
+
+    t.checkExpect(this.c1.isTouching(c2), true);
+    t.checkExpect(c1.isTouching(c1), true);
+    t.checkExpect(c1.isTouching(c3), false);
+    t.checkExpect(c3.isTouching(c1), false);
+    t.checkExpect(c2.isTouching(c1), true);
+  }
+
+  void testMakeNeightbor(Tester t) {
+    Cell c1 = new Cell(1.0, 1, 1);
+    Cell c2 = new OceanCell(1.0, 1, 4);
+    c1.makeNeighbor(c2);
+    t.checkExpect(c1.left.equals(c2), true);
+    IPred<Cell> p = new OceanNeighbor();
+    t.checkExpect(p.apply(c1), true);
+    t.checkExpect(c1.right.equals(c1), true);
+  }
+  
+  
+  // ----------------- Test Player Methods-------------------------
+
+  void testIsTouchingPlayer(Tester t) {
+    Player p1 = new Player(c1);
+    Target t1 = new Target(c1, Color.red);
+    t.checkExpect(p1.isTouching(t1), true);
+  }
+
+  // test movePlayer
+  void testMovePlayer(Tester t) {
+    this.initTest();
+    this.ex1.initCellsMountain();
+    Player p = new Player(this.ex1.cells.get(ForbiddenIslandWorld.ISLAND_HEIGHT - 1)
+        .get(ForbiddenIslandWorld.ISLAND_HEIGHT - 1));
+    this.ex1.player = p.movePlayer("up");
+    t.checkExpect(this.ex1.player.location, this.ex1.cells
+        .get(ForbiddenIslandWorld.ISLAND_HEIGHT - 1).get(ForbiddenIslandWorld.ISLAND_HEIGHT - 2));
+  }
+
+  // ---------------------- Test IList Methods -------------------------
 
   // test the add method in the IList interface
   void testAdd(Tester t) {
@@ -852,7 +872,6 @@ class ExamplesForbidden {
     t.checkExpect(iterator.hasNext(), false);
   }
 
-
   // test the coastline method in IList<Cell>
   void testCoastline(Tester t) {
     this.initTestMountain();
@@ -864,15 +883,15 @@ class ExamplesForbidden {
     }
 
   }
-  
-  // test the flood method 
+
+  // test the flood method
   void testFlood(Tester t) {
     this.initTestMountain();
     for (Cell c : this.ex1.board.flood()) {
       t.checkExpect(c.isFlooded, true);
     }
   }
-  
+
   // test the land method
   void testLand(Tester t) {
     this.initTestMountain();
@@ -881,24 +900,29 @@ class ExamplesForbidden {
       t.checkExpect(c.isOcean(), false);
     }
   }
-  
+
   // test the max height method
   void testMaxHeight(Tester t) {
-    Cell c1 = new Cell(2.0, 1,1);
-    Cell c2 = new Cell(8.0, 2,2);
-    Cell c3 = new Cell(9.0, 2,2);
-    Cell c4 = new Cell(1.0, 1,1);
-    Cell c5 = new Cell(2.0 , 0,0);
-     
+    Cell c1 = new Cell(2.0, 1, 1);
+    Cell c2 = new Cell(8.0, 2, 2);
+    Cell c3 = new Cell(9.0, 2, 2);
+    Cell c4 = new Cell(1.0, 1, 1);
+    Cell c5 = new Cell(2.0, 0, 0);
+
     IList<Cell> mt = new MtList();
     IList<Cell> l1 = new ConsList(c1, mt);
     IList<Cell> l2 = new ConsList(c2, l1);
     IList<Cell> l3 = new ConsList(c3, l2);
     IList<Cell> l4 = new ConsList(c4, l3);
     IList<Cell> l5 = new ConsList(c5, l4);
-    
+
     t.checkExpect(l5.maxHeight(), c3);
-    //t.checkException("No max height of an empty list!", MtList, "maxHeight", mt);
+    // t.checkException("No max height of an empty list!", MtList, "maxHeight", mt);
+  }
+  
+  // TODO: Test random cell
+  void testRandomCell(Tester t) {
+    
   }
 
   // -----------------------Test Function objects ------------------------------
