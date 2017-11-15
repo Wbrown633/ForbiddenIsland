@@ -447,10 +447,12 @@ class ForbiddenIslandWorld extends World {
 
   }
 
+  // Calculate height of edge cell of subdivision
   double avgRand(double a, double b, int size) {
     return (a + b) / 2 + (Math.random() - .5) * size;
   }
 
+  // Calculate height of middle cell of subdivision
   double avgRandM(double a, double b, double c, double d, int size) {
     return (a + b + c + d) / 4 + (Math.random() - .5) * size;
   }
@@ -494,6 +496,7 @@ class Cell {
   // determine the color of this cell
   private Color getColor() {
     int x = (int) (this.height * 255) / ForbiddenIslandWorld.ISLAND_SIZE;
+    x = Math.max(-255, Math.min(255, x));
     int r;
     int g;
     int b;
@@ -517,7 +520,7 @@ class Cell {
     else {
       r = 0;
       g = 0;
-      b = -x;
+      b = 255 + x;
     }
     return new Color(r, g, b);
   }
