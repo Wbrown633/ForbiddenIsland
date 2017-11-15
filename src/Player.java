@@ -48,6 +48,7 @@ class Player {
     if (!targetCell.isFlooded) {
       return new Player(targetCell);
     }
+    
     // if we can't move the player return this player
     else {
       return this;

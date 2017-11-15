@@ -255,6 +255,7 @@ class CanFlood implements IPred<Cell> {
     this.oceanNeighbor = new OceanNeighbor();
     this.notFlooded = new NotFlooded();
   }
+  
   // can this cell be flooded? 
 	// does this cell have an ocean cell neighbor?
 	public boolean apply(Cell c) {

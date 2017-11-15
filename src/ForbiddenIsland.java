@@ -36,6 +36,8 @@ class ForbiddenIslandWorld extends World {
   ArrayList<Target> pieces = new ArrayList<Target>();
   // the helicopter
   Target helicopter;
+  // tick step
+  int tick = 0;
 
   ForbiddenIslandWorld() {
     this.heights = new ArrayList<ArrayList<Double>>();
@@ -64,10 +66,18 @@ class ForbiddenIslandWorld extends World {
     // Render helicopter
     w.placeImageXY(helicopter.image, helicopter.location.x * ForbiddenIslandWorld.CELL_SIZE,
         helicopter.location.y * ForbiddenIslandWorld.CELL_SIZE);
+    
     return w;
   }
 
   public void onTick() {
+
+    // Flood board
+    tick++;
+    if(tick % 10 == 0) {
+      this.board.flood();
+    }
+    
     // if the player is touching one of the helicopter pieces, remove it from the map
     for (int i = this.pieces.size() - 1; i >= 0; i--) {
       Target piece = this.pieces.get(i);
@@ -83,6 +93,7 @@ class ForbiddenIslandWorld extends World {
     if (player.location.isFlooded) {
       this.endOfWorld("YOU LOSE :( ");
     }
+    
   }
 
   // Handle the key presses of the player
@@ -579,7 +590,7 @@ class ExamplesForbidden {
     this.ex1.initCellsProc();
     this.ex1.startGame();
     ex1.bigBang(ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE,
-        ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE, 1);
+        ForbiddenIslandWorld.ISLAND_SIZE * ForbiddenIslandWorld.CELL_SIZE, 1.0);
   }
 
   // initialize the test conditions
