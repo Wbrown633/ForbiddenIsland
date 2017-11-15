@@ -14,6 +14,8 @@ class ForbiddenIslandWorld extends World {
   static final int ISLAND_HEIGHT = ForbiddenIslandWorld.ISLAND_SIZE / 2;
   // define the floodrate of the island
   static final int FLOOD_RATE = 1;
+  // helicopter pieces in the game
+  static final int PARTS = 5;
   // All the cells of the game, including the ocean
   IList<Cell> board;
   // the current height of the ocean
@@ -63,41 +65,51 @@ class ForbiddenIslandWorld extends World {
 
   // Handle the key presses of the player
   // EFFECT: move the player character and restart the game if needed
-  public void onKeyReleased(String key) {
+  public void onKeyEvent(String key) {
     // 'm' render the regular mountain
-    if (key == "m") {
+    if (key.equals("m")) {
       this.listHeightsMountain();
       this.initCellsMountain();
+      this.startGame();
     }
     // 'r' render the random mountain
-    else if (key == "r") {
+    else if (key.equals("r")) {
       this.listHeightsMountain();
       this.initCellsRandom();
+      this.startGame();
     }
     // 't' render the procedural mountain
-    else if (key == "t") {
+    else if (key.equals("t")) {
       this.listHeightsProc();
       this.initCellsProc();
+      this.startGame();
     }
     // 'w' move the player to the top cell
-    else if (key == "w") {
+    else if (key.equals("w")) {
       this.player = this.player.movePlayer("up");
     }
     // 'a' move the player to the left cell
-    else if (key == "a") {
+    else if (key.equals("a")) {
       this.player = this.player.movePlayer("left");
     }
     // 's' move the player to the bottom cell
-    else if (key == "s") {
+    else if (key.equals("s")) {
       this.player = this.player.movePlayer("down");
     }
     // 'd' move the player to the right cell
-    else if (key == "d") {
+    else if (key.equals("d")) {
       this.player = this.player.movePlayer("right");
     }
-    else if (key == "escape") {
+    else if (key.equals("escape")) {
       this.worldEnds();
     }
+  }
+  
+  // reset or start the game for the first time
+  void startGame() {
+    this.spawnPlayer();
+    this.spawnParts(ForbiddenIslandWorld.PARTS);
+    this.spawnHelicopter();
   }
 
   // EFFECT: Fix the links of the cells
@@ -249,6 +261,7 @@ class ForbiddenIslandWorld extends World {
   // Spawn a given number of helicopter parts
   // Effect: add new targets to the array list 'pieces'
   public void spawnParts(int parts) {
+    this.pieces = new ArrayList<Target>();
     Cell spawn = new Cell(1.0,1,1);
     IList<Cell> land = this.board.land();
     // get a random cell on the land
