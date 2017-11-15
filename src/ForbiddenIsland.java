@@ -15,7 +15,7 @@ class ForbiddenIslandWorld extends World {
   // define the floodrate of the island
   static final int FLOOD_RATE = 1;
   // helicopter pieces in the game
-  static final int PARTS = 5;
+  static final int PARTS = 0;
   // All the cells of the game, including the ocean
   IList<Cell> board;
   // the current height of the ocean
@@ -71,9 +71,10 @@ class ForbiddenIslandWorld extends World {
       }
     }    
     if (player.isTouching(helicopter) && this.pieces.isEmpty()) {
-      System.out.println("YOU WIN!!");
-      // Implement World End 
-      this.worldEnds();
+      this.endOfWorld("YOU WIN!!!");
+    }
+    if (player.location.isFlooded) {
+      this.endOfWorld("YOU LOSE :( ");
     }
   }
 
@@ -98,25 +99,16 @@ class ForbiddenIslandWorld extends World {
       this.initCellsProc();
       this.startGame();
     }
-    // 'w' move the player to the top cell
-    else if (key.equals("w")) {
-      this.player = this.player.movePlayer("up");
+    // handle player movement using the arrow keys 
+    else if (key.equals("up") || key.equals("down") || key.equals("left") || key.equals("right")) {
+      this.player = this.player.movePlayer(key);
     }
-    // 'a' move the player to the left cell
-    else if (key.equals("a")) {
-      this.player = this.player.movePlayer("left");
-    }
-    // 's' move the player to the bottom cell
-    else if (key.equals("s")) {
-      this.player = this.player.movePlayer("down");
-    }
-    // 'd' move the player to the right cell
-    else if (key.equals("d")) {
-      this.player = this.player.movePlayer("right");
-    }
-    else if (key.equals("escape")) {
-      this.worldEnds();
-    }
+  }
+  
+  public WorldScene lastScene(String msg) {
+    WorldScene w = new WorldScene(ForbiddenIslandWorld.ISLAND_SIZE * 100, ForbiddenIslandWorld.ISLAND_SIZE * 100);
+    w.placeImageXY(new TextImage(msg, Color.RED), 100, 100);
+    return w;
   }
   
   // reset or start the game for the first time
@@ -549,7 +541,7 @@ class Cell {
     this.left = c;
   }
   
-  // is this cell the same as the given cell?
+  // is this cell's location close to that cell's location
   public boolean isTouching(Cell that) {
     return Math.sqrt(Math.abs(this.x - that.x) * Math.abs(this.x - that.x) + 
         Math.abs(this.y - that.y) * Math.abs(this.y - that.y)) <= ForbiddenIslandWorld.CELL_SIZE/4;

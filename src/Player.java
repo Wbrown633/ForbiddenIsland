@@ -28,16 +28,16 @@ class Player {
   public Player movePlayer(String direction) {
     // set the cell the player wants to move to
     Cell targetCell;
-    if (direction == "up") {
+    if (direction.equals("up")) {
       targetCell = this.location.top;
     }
-    else if (direction == "down") {
+    else if (direction.equals("down")) {
       targetCell = this.location.bottom;
     }
-    else if (direction == "right") {
+    else if (direction.equals("right")) {
       targetCell = this.location.right;
     }
-    else if (direction == "left") {
+    else if (direction.equals("left")) {
       targetCell = this.location.left;
     }
     else {
