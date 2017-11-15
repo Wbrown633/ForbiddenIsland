@@ -69,6 +69,11 @@ class ForbiddenIslandWorld extends World {
       if (player.isTouching(piece)) {
         this.pieces.remove(piece);
       }
+    }    
+    if (player.isTouching(helicopter) && this.pieces.isEmpty()) {
+      System.out.println("YOU WIN!!");
+      // Implement World End 
+      this.worldEnds();
     }
   }
 
@@ -545,11 +550,9 @@ class Cell {
   }
   
   // is this cell the same as the given cell?
-  public boolean sameCell(Cell that) {
-    return this.x == that.x
-        && this.y == that.y
-        && this.height == that.height
-        && this.isFlooded == that.isFlooded;
+  public boolean isTouching(Cell that) {
+    return Math.sqrt(Math.abs(this.x - that.x) * Math.abs(this.x - that.x) + 
+        Math.abs(this.y - that.y) * Math.abs(this.y - that.y)) <= ForbiddenIslandWorld.CELL_SIZE/4;
   }
 }
 

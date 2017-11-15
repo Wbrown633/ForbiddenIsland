@@ -16,12 +16,12 @@ class Player {
      this.location = location;
      this.xpos = location.x;
      this.ypos = location.y;
-     this.image = new CircleImage(20, OutlineMode.SOLID, Color.ORANGE);
+     this.image = new CircleImage(ForbiddenIslandWorld.CELL_SIZE, OutlineMode.SOLID, Color.ORANGE);
   }
   
   // Draws this player onto the background
   WorldImage drawAt(WorldImage background) {
-    return new OverlayImage(new CircleImage(ForbiddenIslandWorld.CELL_SIZE, OutlineMode.SOLID, Color.BLACK), background);
+    return new OverlayImage(new CircleImage(ForbiddenIslandWorld.CELL_SIZE/2, OutlineMode.SOLID, Color.BLACK), background);
   }
   
   // move this player from the current cell to the cell in the given direction
@@ -56,7 +56,7 @@ class Player {
   
   // is the player on the same cell as the given target? 
   public boolean isTouching(Target t) {
-    return this.location.sameCell(t.location);
+    return this.location.isTouching(t.location);
   }
   
   
